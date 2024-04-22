@@ -14,8 +14,9 @@ model User {
   password String
 
   tasks    Task[]
-  projects ProjectMember[]
+  memberOf ProjectMember[]
   invites  ProjectInvite[]
+  projects Project[]
 }
 
 model Task {
@@ -33,6 +34,9 @@ model Project {
   id          String @id @default(uuid())
   name        String @unique
   description String
+  userId      String
+
+  user User @relation(fields: [userId], references: [id])
 
   tasks   Task[]
   members ProjectMember[]

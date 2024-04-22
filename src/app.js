@@ -7,6 +7,7 @@ import 'express-async-errors'
 import { AppError } from './utils/error.js'
 import { errorHandler } from './middlewares/error.js'
 import authRoutes from './routes/auth.js'
+import projectRoutes from './routes/project.js'
 
 const app = express()
 
@@ -19,6 +20,7 @@ app.use(cookieParser())
 // Routes
 app.get('/', (req, res) => res.send('OK'))
 app.use('/api/auth', authRoutes)
+app.use('/api/projects', projectRoutes)
 
 // Error handlers
 app.use(() => {
