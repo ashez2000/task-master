@@ -9,6 +9,7 @@ import { errorHandler } from './middlewares/error.js'
 import authRoutes from './routes/auth.js'
 import projectRoutes from './routes/project.js'
 import inviteRoutes from './routes/invite.js'
+import taskRoutes from './routes/task.js'
 
 const app = express()
 
@@ -23,6 +24,7 @@ app.get('/', (req, res) => res.send('OK'))
 app.use('/api/auth', authRoutes)
 app.use('/api/projects', projectRoutes)
 app.use('/api/invites', inviteRoutes)
+app.use('/api/tasks', taskRoutes)
 
 // Error handlers
 app.use(() => {

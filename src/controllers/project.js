@@ -56,6 +56,49 @@ export const invite = async (req, res) => {
   res.status(201).json(invite)
 }
 
+/**
+ * Create new task for project
+ * @route POST /api/projects/:id/task
+ */
+export const createTask = async (req, res) => {
+  // TODO: data validatation
+  const curUserId = req.user.id
+  const projectId = req.params.id
+  const { title, description } = req.body
+
+  // TODO: user ownership
+
+  const task = await db.task.create({
+    data: {
+      title,
+      description,
+      projectId,
+      userId: curUserId,
+    },
+  })
+
+  res.status(201).json(task)
+}
+
+/**
+ * Get tasks for project
+ * @route GET /api/projects/:id/task
+ */
+export const getTasks = async (req, res) => {
+  const curUserId = req.user.id
+  const projectId = req.params.id
+
+  // TODO: user ownership
+
+  const tasks = await db.task.findMany({
+    where: {
+      projectId,
+    },
+  })
+
+  res.status(200).json(tasks)
+}
+
 // #### Helpers ####
 
 /** Finds project by id, throws Not Found on null*/
