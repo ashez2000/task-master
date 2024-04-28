@@ -1,5 +1,6 @@
 import db from '../utils/prisma.js'
 import * as projectRepo from '../repository/project.js'
+import { newProjectSchema } from '../schemas/project.js'
 import { AppError } from '../utils/error.js'
 
 /**
@@ -8,11 +9,14 @@ import { AppError } from '../utils/error.js'
  */
 export const create = async (req, res) => {
   const userId = req.user.id
-  // TODO: Data validation
-  const { name, description } = req.body
+  const { name, description } = newProjectSchema.parse(req.body)
 
-  // TODO: Handle duplicate data
-  const project = await db.project.create({
+  const project = await db.project.findUnique({ where: { name } })
+  if (project) {
+    throw new AppError('Project name taken', 400)
+  }
+
+  const newProject = await db.project.create({
     data: {
       name,
       description,
@@ -20,7 +24,7 @@ export const create = async (req, res) => {
     },
   })
 
-  res.status(201).json(project)
+  res.status(201).json(newProject)
 }
 
 /**
@@ -30,6 +34,41 @@ export const create = async (req, res) => {
 export const findById = async (req, res) => {
   const id = req.params.id
   const project = await findProjectById(id)
+  res.status(200).json(project)
+}
+
+/**
+ * Update project
+ * @route PUT /api/project/:id
+ */
+export const update = async (req, res) => {
+  const id = req.params.id
+  const curUserId = req.user.id
+  const project = await findProjectById(id)
+  isOwner(project, curUserId)
+
+  const body = newProjectSchema.partial().parse(req.body)
+  const updatedProject = await db.project.update({
+    where: { id },
+    data: body,
+  })
+
+  res.status(200).json(updatedProject)
+}
+
+/**
+ * Remove project
+ * @route DELETE /api/project/:id
+ */
+export const remove = async (req, res) => {
+  const id = req.params.id
+  const curUserId = req.user.id
+  const project = await findProjectById(id)
+  isOwner(project, curUserId)
+
+  // TODO: cascaed delete
+  await db.project.delete({ where: { id } })
+
   res.status(200).json(project)
 }
 
@@ -112,8 +151,8 @@ const findProjectById = async (id) => {
 
 /** Checks for project ownership, else throws Forbidden error */
 const isOwner = (project, curUserId) => {
-  if (project.userId !== userId) {
-    console.debug('User is unautorized to invite for this project')
+  if (project.userId !== curUserId) {
+    console.debug('curUser is not owner of project')
     throw new AppError('Forbidden', 403)
   }
 }
