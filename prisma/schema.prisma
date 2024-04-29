@@ -50,6 +50,8 @@ model ProjectMember {
 
   project Project @relation(fields: [projectId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
 }
 
 model ProjectInvite {
@@ -60,4 +62,6 @@ model ProjectInvite {
 
   project Project @relation(fields: [projectId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
 }
