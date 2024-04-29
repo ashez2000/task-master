@@ -24,6 +24,9 @@ export const create = async (req, res) => {
     },
   })
 
+  // Add owner as a project member
+  await projectRepo.addMember(newProject.id, userId)
+
   res.status(201).json(newProject)
 }
 
